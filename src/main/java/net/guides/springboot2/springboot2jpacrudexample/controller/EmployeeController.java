@@ -6,6 +6,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,30 +27,53 @@ import net.guides.springboot2.springboot2jpacrudexample.repository.EmployeeRepos
 @RestController
 @RequestMapping("/api/v1")
 public class EmployeeController {
-	@Autowired
+
 	private EmployeeRepository employeeRepository;
+
+	private final MeterRegistry meterRegistry;
+	private Counter employeeCounter;
+	private Counter getEmployeeCounterByID;
+	private Counter putEmployeeCounterByID;
+
+
+	public EmployeeController(MeterRegistry meterRegistry, EmployeeRepository employeeRepository) {
+		initEmployeeCounter();
+		this.meterRegistry = meterRegistry;
+		this.employeeRepository = employeeRepository;
+	}
 
 	@GetMapping("/employees")
 	public List<Employee> getAllEmployees() {
+
 		return employeeRepository.findAll();
+	}
+
+	private void initEmployeeCounter(){
+		employeeCounter = this.meterRegistry.counter("new-employee-creataed");
+		getEmployeeCounterByID = this.meterRegistry.counter("employee-by-id","operation","get");
+		putEmployeeCounterByID = this.meterRegistry.counter("employee-by-id","operation","put");
 	}
 
 	@GetMapping("/employees/{id}")
 	public ResponseEntity<Employee> getEmployeeById(@PathVariable(value = "id") Long employeeId)
 			throws ResourceNotFoundException {
+		getEmployeeCounterByID.increment();
 		Employee employee = employeeRepository.findById(employeeId)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id :: " + employeeId));
 		return ResponseEntity.ok().body(employee);
 	}
 
+	@Timed("create-customer")
 	@PostMapping("/employees")
 	public Employee createEmployee(@Valid @RequestBody Employee employee) {
+		employeeCounter.increment();
 		return employeeRepository.save(employee);
 	}
 
 	@PutMapping("/employees/{id}")
 	public ResponseEntity<Employee> updateEmployee(@PathVariable(value = "id") Long employeeId,
 			@Valid @RequestBody Employee employeeDetails) throws ResourceNotFoundException {
+		putEmployeeCounterByID.increment();
 		Employee employee = employeeRepository.findById(employeeId)
 				.orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id :: " + employeeId));
 

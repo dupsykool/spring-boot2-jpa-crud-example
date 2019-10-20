@@ -30,7 +30,7 @@ public class EmployeeController {
 
 	private EmployeeRepository employeeRepository;
 
-	private final MeterRegistry meterRegistry;
+	private MeterRegistry meterRegistry;
 	private Counter employeeCounter;
 	private Counter getEmployeeCounterByID;
 	private Counter putEmployeeCounterByID;

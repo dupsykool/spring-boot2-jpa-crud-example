@@ -30,7 +30,7 @@ public class EmployeeController {
 
 	private EmployeeRepository employeeRepository;
 
-	private MeterRegistry meterRegistry;
+	private final MeterRegistry meterRegistry;
 	private Counter employeeCounter;
 	private Counter getEmployeeCounterByID;
 	private Counter putEmployeeCounterByID;
@@ -49,7 +49,7 @@ public class EmployeeController {
 	}
 
 	private void initEmployeeCounter(){
-		employeeCounter = this.meterRegistry.counter("new-employee-creataed");
+		employeeCounter = this.meterRegistry.counter("new-employee-creataed","operation","post");
 		getEmployeeCounterByID = this.meterRegistry.counter("employee-by-id","operation","get");
 		putEmployeeCounterByID = this.meterRegistry.counter("employee-by-id","operation","put");
 	}

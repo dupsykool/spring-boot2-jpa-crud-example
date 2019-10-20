@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,15 +31,16 @@ public class EmployeeController {
 
 	private EmployeeRepository employeeRepository;
 
-	private final MeterRegistry meterRegistry;
+	private MeterRegistry meterRegistry = new SimpleMeterRegistry();
+//	private final MeterRegistry meterRegistry;
 	private Counter employeeCounter;
 	private Counter getEmployeeCounterByID;
 	private Counter putEmployeeCounterByID;
 
 
-	public EmployeeController(MeterRegistry meterRegistry, EmployeeRepository employeeRepository) {
+	public EmployeeController(EmployeeRepository employeeRepository) {
 		initEmployeeCounter();
-		this.meterRegistry = meterRegistry;
+//		this.meterRegistry = meterRegistry;
 		this.employeeRepository = employeeRepository;
 	}
 
